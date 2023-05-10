@@ -1,19 +1,30 @@
-import PropTypes from 'prop-types';
+import { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+
+import { getContacts } from 'redux/selectors';
+import { getFilterValue } from 'redux/selectors';
+
 
 import { Contact } from './Contact/Contact';
 
 import css from './ContactsList.module.css';
 
-export const ContactsList = ({ contacts, deleteContact }) => {
+export const ContactsList = () => {
+    const contacts = useSelector(getContacts);
+    const filter = useSelector(getFilterValue);
+
+    const filteredContacts = useMemo(() => {
+    return contacts.filter((el) => (el.name.toLowerCase().includes(filter.toLowerCase())));
+  }, [contacts, filter]);
+
     return (
         <div className={css.wrapper}>
             <ul>
-                {contacts.map((el) => (
+                {filteredContacts.map((el) => (
                     <Contact
                         key={el.id}
                         name={el.name}
                         number={el.number}
-                        click={deleteContact}
                         id={el.id}
                     />)
                 )}
@@ -21,12 +32,3 @@ export const ContactsList = ({ contacts, deleteContact }) => {
         </div>
     );
 };
-
-ContactsList.propTypes = {
-    contacts: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        number: PropTypes.string.isRequired,
-    })),
-    deleteContact: PropTypes.func.isRequired,
-}
